@@ -1,0 +1,96 @@
+"""
+    This script has the only purpose of creating atomic files for knowledge-aware recsys on the recbole library.
+    
+    - e_map.txt contiene eid, name, entity con name=entity
+    - i2kg_map.txt contiene eid, pid, name entity con name=entity
+    - kg_final.txt contiene entity_head, relation, entity_tail
+    - products.txt contiene pid, name, provider_id, genre, pop_item, pop_provider
+    - r_map.txt contiene id, kb_relation, name con kb_relation = name
+    - ratings.txt contiene uid, pid, rating, timestamp
+"""
+
+import os
+import pandas as pd
+import csv
+import argparse
+from collections import defaultdict
+
+class MapDatasets:
+    def __init__(self, dataset):
+        self.dataset = dataset
+        self.dataset_folder = os.path.join('global_datasets', dataset)
+
+        # Datasets files
+        self.r_map = os.path.join(self.dataset_folder, 'r_map.txt')
+        self.products = os.path.join(self.dataset_folder, 'products.txt')
+        self.ratings = os.path.join(self.dataset_folder, 'ratings.txt')
+        self.kg_final = os.path.join(self.dataset_folder, 'kg_final.txt')
+        self.i2kg_map = os.path.join(self.dataset_folder, 'i2kg_map.txt')
+
+        self.load_dataframes()
+        
+        self.load_mappings()
+        
+        self.create_inter_file()
+        self.create_link_file()
+        self.create_kg_file()
+        self.create_item_file()
+
+        self.save_recbole_dataset()
+
+
+    def load_dataframes(self):
+        self.r_map_df = pd.read_csv(self.r_map, sep="\t")
+        self.products_df = pd.read_csv(self.products, sep="\t")
+        self.ratings_df = pd.read_csv(self.ratings, sep="\t")
+        self.kg_final_df = pd.read_csv(self.kg_final, sep="\t")
+        self.i2kg_map_df = pd.read_csv(self.i2kg_map, sep="\t")
+    
+    def load_mappings(self):
+        self.pid2eid = dict(zip(self.i2kg_map_df.pid, self.i2kg_map_df.eid))
+        self.rid2name=dict(zip(self.r_map_df.id, self.r_map_df.name))
+
+    def create_inter_file(self):
+        # remove rows if self.ratings_df.pid not in self.i2kg_map_df.pid
+        print(f'Filtering ratings df. Before: {self.ratings_df.shape}')
+        self.ratings_df = self.ratings_df[self.ratings_df.pid.isin(self.i2kg_map_df.pid)]
+        print(f'Filtering ratings df. After: {self.ratings_df.shape}')
+        data = {'user_id:token': self.ratings_df.uid, 
+                   'item_id:token': self.ratings_df.pid,
+                   'rating:float': self.ratings_df.rating, 
+                   'timestamp:float': self.ratings_df.timestamp
+                }
+        
+        self.inter_df = pd.DataFrame(data)
+    
+    def create_link_file(self):
+        data = {
+            'item_id:token': self.i2kg_map_df.pid,
+            'entity_id:token': self.i2kg_map_df.eid,
+        }
+        self.link_df = pd.DataFrame(data)
+    
+    
+    def create_kg_file(self):
+        data = {
+            'head_id:token': self.kg_final_df.entity_head,
+            'relation_id:token': self.kg_final_df.relation.map(self.rid2name),
+            'tail_id:token': self.kg_final_df.entity_tail
+        }
+        
+        self.kg_df = pd.DataFrame(data)
+
+    def create_item_file(self):
+        pass
+
+    def save_recbole_dataset(self):
+        self.inter_df.to_csv(os.path.join(self.dataset_folder, f'{self.dataset}.inter'), sep="\t", index=False)
+        self.link_df.to_csv(os.path.join(self.dataset_folder, f'{self.dataset}.link'), sep="\t", index=False)
+        self.kg_df.to_csv(os.path.join(self.dataset_folder,f'{self.dataset}.kg'), sep="\t", index=False)
+
+if __name__=="__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--dataset', type=str, default='example')
+    args = parser.parse_args()
+
+    MapDatasets(args.dataset)
