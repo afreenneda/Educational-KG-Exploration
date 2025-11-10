@@ -1,0 +1,73 @@
+metrics: ["Recall","MRR","NDCG","Hit","Precision", "Serendipity","Novelty","AveragePopularity", "ItemCoverage", "Fidelity", "LIR", "LID", "SEP","SED","PTD","PPT","PTC", "LITD","SETD"] # (list or str) Evaluation metrics.
+data_path: /home/recsysdatasets
+eval_step: 5
+batch_size: 2
+eval_batch_size: 1
+epochs: 5
+
+learning_rate: 1e-3
+weight_decay: 0.001
+warmup_steps: 250               # (int) Number of warmup steps for learning rate scheduler.
+embedding_size: 768             # (int) Size of the embeddings.
+num_heads: 12                   # (int) Number of heads in the multi-head attention.
+num_layers: 6                   # (int) Number of layers in the transformer.
+use_kg_token_types: True        # (bool) Whether to use token types for the knowledge graph.
+
+save_dataloaders: True
+save_dataset: True
+
+base_model: distilgpt2
+sequence_postprocessor: Cumulative
+
+MAX_PATHS_PER_USER: 1
+path_sample_args:
+    temporal_causality: False
+    strategy: simple-ui
+
+path_generation_args:
+    paths_per_user: 10          # (int) Number of paths generated per user.
+    num_beams: 20               # (int) Number of beams for beam search.
+    num_beam_groups: 5          # (int) Number of groups for diverse beam search.
+    diversity_penalty: 0.3      # (float) Diversity penalty for beam search.
+    length_penalty: 0.0         # (float) Length penalty for beam search.
+    top_k: ~                    # (int) The number of highest probability vocabulary tokens to keep for top-k-filtering.
+    top_p: ~                    # (float) The cumulative probability for top-p-filtering.
+    do_sample: False            # (bool) Whether to use sampling ; use greedy decoding otherwise.
+    return_dict_in_generate: True
+    output_scores: True
+
+
+# one of ['SampleSearch', 'BeamSearch', 'Cumulative']
+ # (str) Process generated sequences into scores and structured paths
+#peek
+#path_constraint: [
+#  [[null, 'user'], ["[UI-Relation]","entity"], ["[UI-Relation]","user"],["[UI-Relation]","entity"]],
+#  [[null, 'user'], ["[UI-Relation]","entity"], ["0","entity"],["0_r","entity"]],
+#  [[null, 'user'], ["[UI-Relation]","entity"], ["1","entity"],["1_r","entity"]],
+#]
+
+#mooccube
+#path_constraint: [
+#  [[null, 'user'], ["[UI-Relation]","entity"], ["[UI-Relation]","user"],["[UI-Relation]","entity"]],
+#  [[null, 'user'], ["[UI-Relation]","entity"], ["covers_in_concept","entity"],["covers_in_concept_r","entity"]],
+#  [[null, 'user'], ["[UI-Relation]","entity"], ["taught_by_instructor","entity"],["taught_by_instructor_r","entity"]],
+#  [[null, 'user'], ["[UI-Relation]","entity"], ["Held_by_EducationalOrganization","entity"],["Held_by_EducationalOrganization_r","entity"]],
+#]
+#mooper
+#path_constraint: [
+#  [[null, 'user'], ["[UI-Relation]","entity"], ["[UI-Relation]","entity"],["[UI-Relation]","entity"]],
+#  [[null, 'user'], ["[UI-Relation]","entity"], ["covers_in_concept","entity"],["covers_in_concept_r","entity"]],
+#  [[null, 'user'], ["[UI-Relation]","entity"], ["includes_in_learningresources","entity"],["includes_in_learningresources_r","entity"]],
+#  [[null, 'user'], ["[UI-Relation]","entity"], ["taught_by_instructor","entity"],["taught_by_instructor_r","entity"]],
+#]
+
+#coco
+path_constraint: [
+  [[null, 'user'], ["[UI-Relation]","entity"], ["[UI-Relation]","user"],["[UI-Relation]","entity"]],
+  [[null, 'user'], ["[UI-Relation]","entity"], ["belong_to_category","entity"],["belong_to_category_r","entity"]],
+  [[null, 'user'], ["[UI-Relation]","entity"], ["covers_in_concept","entity"],["covers_in_concept_r","entity"]],
+  [[null, 'user'], ["[UI-Relation]","entity"], ["taught_in_level","entity"],["taught_in_level_r","entity"]],
+  [[null, 'user'], ["[UI-Relation]","entity"], ["taught_in_language","entity"],["taught_in_language_r","entity"]],
+  [[null, 'user'], ["[UI-Relation]","entity"], ["has_target_audience","entity"],["has_target_audience_r","entity"]],
+  [[null, 'user'], ["[UI-Relation]","entity"], ["taught_by_instructor","entity"],["taught_by_instructor_r","entity"]],
+]

@@ -1,0 +1,67 @@
+metrics: ["Recall","MRR","NDCG","Hit","Precision", "Serendipity","Novelty","AveragePopularity", "ItemCoverage", "Fidelity", "LIR", "LID", "SEP","SED","PTD","PPT", "PTC", "LITD","SETD"] # (list or str) Evaluation metrics.
+data_path: /home/recsysdatasets
+eval_step: 50
+# CAFE Parameters
+rank_weight: 10
+use_dropout: True
+deep_module: True
+topk_candidates: 10
+sample_size: 500
+kg_reverse_r: True
+topk_paths: 25
+clip_grad_norm:
+  max_norm: 5.0
+max_user_trials: 50
+epochs: 50
+
+
+
+# Embeddings
+additional_feat_suffix: [useremb, entityemb, relationemb]
+# To load the pretrained embeddings (Typically from TransE) necessary to score the paths
+load_col:
+    useremb: [user_embedding_id, user_embedding]
+    entityemb: [entity_embedding_id, entity_embedding]
+    relationemb: [relation_embedding_id, relation_embedding]
+
+alias_of_user_id: [user_embedding_id]
+alias_of_entity_id: [entity_embedding_id]
+alias_of_relation_id: [relation_embedding_id]
+
+preload_weight:
+  user_embedding_id: user_embedding
+  entity_embedding_id: entity_embedding
+  relation_embedding_id: relation_embedding
+
+#peek
+#path_constraint: [
+#  [[null, 'user'], ["[UI-Relation]","entity"], ["[UI-Relation]","user"],["[UI-Relation]","entity"]],
+#  [[null, 'user'], ["[UI-Relation]","entity"], ["covers_in_concept","entity"],["covers_in_concept_r","entity"]],
+#  [[null, 'user'], ["[UI-Relation]","entity"], ["includes_in_learningresources","entity"],["includes_in_learningresources_r","entity"]],
+#]
+
+#mooccube
+#path_constraint: [
+#  [[null, 'user'], ["[UI-Relation]","entity"], ["[UI-Relation]","user"],["[UI-Relation]","entity"]],
+#  [[null, 'user'], ["[UI-Relation]","entity"], ["covers_in_concept","entity"],["covers_in_concept_r","entity"]],
+#  [[null, 'user'], ["[UI-Relation]","entity"], ["taught_by_instructor","entity"],["taught_by_instructor_r","entity"]],
+#  [[null, 'user'], ["[UI-Relation]","entity"], ["Held_by_EducationalOrganization","entity"],["Held_by_EducationalOrganization_r","entity"]],
+#]
+#mooper
+path_constraint: [
+  [[null, 'user'], ["[UI-Relation]","entity"], ["[UI-Relation]","entity"],["[UI-Relation]","entity"]],
+  [[null, 'user'], ["[UI-Relation]","entity"], ["covers_in_concept","entity"],["covers_in_concept_r","entity"]],
+  [[null, 'user'], ["[UI-Relation]","entity"], ["includes_in_learningresources","entity"],["includes_in_learningresources_r","entity"]],
+  [[null, 'user'], ["[UI-Relation]","entity"], ["taught_by_instructor","entity"],["taught_by_instructor_r","entity"]],
+]
+
+#coco
+#path_constraint: [
+#  [[null, 'user'], ["[UI-Relation]","entity"], ["[UI-Relation]","user"],["[UI-Relation]","entity"]],
+#  [[null, 'user'], ["[UI-Relation]","entity"], ["belong_to_category","entity"],["belong_to_category_r","entity"]],
+#  [[null, 'user'], ["[UI-Relation]","entity"], ["covers_in_concept","entity"],["covers_in_concept_r","entity"]],
+#  [[null, 'user'], ["[UI-Relation]","entity"], ["taught_in_level","entity"],["taught_in_level_r","entity"]],
+#  [[null, 'user'], ["[UI-Relation]","entity"], ["taught_in_language","entity"],["taught_in_language_r","entity"]],
+#  [[null, 'user'], ["[UI-Relation]","entity"], ["has_target_audience","entity"],["has_target_audience_r","entity"]],
+#  [[null, 'user'], ["[UI-Relation]","entity"], ["taught_by_instructor","entity"],["taught_by_instructor_r","entity"]],
+#]
